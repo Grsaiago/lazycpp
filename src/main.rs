@@ -1,6 +1,6 @@
 use std::io::Write;
 
-fn createCPP(path: &String, filename: &String, mut patharg: String)
+fn create_cpp(_path: &String, filename: &String, mut patharg: String)
 {
     let mut fd: std::fs::File;
 
@@ -14,12 +14,13 @@ fn createCPP(path: &String, filename: &String, mut patharg: String)
         };
     write!(&mut fd, "#include \"{filename}.hpp\"\n\n").expect("error writting .cpp");
     write!(&mut fd, "{filename}::{filename}(void)\n{{\n}}\n\n").expect("error writting .cpp");
+    write!(&mut fd, "{filename}::{filename}({filename} const &cpy)\n{{\n}}\n\n").expect("error writting .cpp");
     write!(&mut fd, "{filename}::~{filename}(void)\n{{\n}}\n\n").expect("error writting .cpp");
     write!(&mut fd, "{filename}\t&{filename}::operator=({filename} const &rhs)\n{{\n}}\n\n").expect("error writting .cpp");
     println!("\x1b[0;32mCreated {filename}.cpp\x1b[0m");
 }
 
-fn createHPP(path: &String, filename: &String, mut patharg: String)
+fn create_hpp(_path: &String, filename: &String, mut patharg: String)
 {
     let mut fd: std::fs::File;
 
@@ -39,6 +40,8 @@ fn createHPP(path: &String, filename: &String, mut patharg: String)
         .expect("\x1b[0;31mError writting to {filename}.hpp\x1b[0m");
     write!(&mut fd, "\t\t{filename}(void);\n")
         .expect("\x1b[0;31mError writting to {filename}.hpp\x1b[0m");
+    write!(&mut fd, "\t\t{filename}({filename} const &cpy);\n")
+        .expect("\x1b[0;31mError writting to {filename}.hpp\x1b[0m");
     write!(&mut fd, "\t\t~{filename}(void);\n")
         .expect("\x1b[0;31mError writting to {filename}.hpp\x1b[0m");
     write!(&mut fd, "\t\t{filename}&\toperator=({filename} const &rhs);\n")
@@ -55,9 +58,9 @@ fn main() {
     let path: String;
     let mut patharg: String;
 
-    if (vec.len() <= 1) {
+    if vec.len() <= 1 {
         println!("This tool was developed by gsaiago in an effort to help 42 students on the tedious parts of the CPP piscine");
-        println!("ussage: lazycpp <class_names> ...");
+        println!("usage: lazycpp <class_names> ...");
         println!("P.S: lazycpp will not write to a file that already exists.");
         return ;
     }
@@ -67,19 +70,19 @@ fn main() {
                         .to_str()
                         .expect("\x1b[0;31Error on to_str\x1b[0m"), "/");
     arg = i.next();
-    if (arg.is_some() && (arg.unwrap().eq("-h") || arg.unwrap().eq("--help"))) {
+    if arg.is_some() && (arg.unwrap().eq("-h") || arg.unwrap().eq("--help")) {
         println!("This tool was developed by gsaiago in an effort to help 42 students on the tedious parts of the CPP piscine");
         println!("ussage: lazycpp <class_names> ...");
         println!("P.S: lazycpp will not write to a file that already exists.");
         return ;
     }
-    while (arg.is_some())
+    while arg.is_some()
     {
         patharg = path.clone();
         patharg.push_str(arg.unwrap());
-        createHPP(&path, &arg.unwrap(), patharg.clone());
-        if (!arg.unwrap().starts_with('I')) {
-            createCPP(&path, &arg.unwrap(), patharg.clone());
+        create_hpp(&path, &arg.unwrap(), patharg.clone());
+        if !arg.unwrap().starts_with('I') {
+            create_cpp(&path, &arg.unwrap(), patharg.clone());
         }
         arg = i.next();
     }
